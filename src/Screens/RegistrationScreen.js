@@ -37,7 +37,6 @@ export default function RegistrationScreen() {
   const sentInitialState = () => {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
-    console.log(state);
     setstate(initialState);
     setShow(true);
   };

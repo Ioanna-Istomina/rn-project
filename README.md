@@ -1,3 +1,3 @@
 # rn-project
 
-![img](home-task-2.png)
+![img](home-task-3.png)
