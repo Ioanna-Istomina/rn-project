@@ -18,7 +18,7 @@ const initialState = {
   password: "",
 };
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [state, setstate] = useState(initialState);
   const [dimensions, setdimensions] = useState(Dimensions.get("window").width);
@@ -33,9 +33,14 @@ export default function LoginScreen() {
   };
 
   const sentInitialState = () => {
+    if (!initialState.email && !initialState.password) {
+      return;
+    }
+
     setIsShowKeyboard(false);
     Keyboard.dismiss();
     setstate(initialState);
+    navigation.navigate("Home");
     setShow(true);
   };
 
@@ -57,12 +62,22 @@ export default function LoginScreen() {
     return setShow(true);
   };
 
+  useEffect(() => {
+    const hideKeybord = Keyboard.addListener("keyboardDidHide", () => {
+      setIsShowKeyboard(false);
+    });
+
+    return () => {
+      hideKeybord.remove();
+    };
+  }, []);
+
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
       <View style={styles.container}>
         <ImageBackground
           style={styles.background}
-          source={require("../img/background.jpg")}
+          source={require("../../img/background.jpg")}
         >
           <KeyboardAvoidingView
             style={styles.container}
@@ -72,14 +87,17 @@ export default function LoginScreen() {
               <View
                 style={{
                   ...styles.form,
-                  marginBottom: isShowKeyboard ? 32 : 78,
+                  marginBottom: isShowKeyboard ? 32 : 200,
                   width: dimensions,
                 }}
               >
                 <Text style={styles.headerTitle}>Login</Text>
                 <TextInput
                   style={currentEmailStyle}
-                  onFocus={() => setFocusEmail(true)}
+                  onFocus={() => {
+                    setFocusEmail(true);
+                    setIsShowKeyboard(true);
+                  }}
                   onBlur={() => setFocusEmail(false)}
                   placeholder="Email"
                   placeholderTextColor="#BDBDBD"
@@ -95,7 +113,10 @@ export default function LoginScreen() {
                 <View>
                   <TextInput
                     style={currentPasswordStyle}
-                    onFocus={() => setFocusPassword(true)}
+                    onFocus={() => {
+                      setFocusPassword(true);
+                      setIsShowKeyboard(true);
+                    }}
                     onBlur={() => setFocusPassword(false)}
                     placeholder="Password"
                     placeholderTextColor="#BDBDBD"
@@ -120,7 +141,10 @@ export default function LoginScreen() {
                   <Text style={styles.buttonText}>Sign In</Text>
                 </TouchableOpacity>
 
-                <Text style={styles.textLink}>
+                <Text
+                  style={styles.textLink}
+                  onPress={() => navigation.navigate("Registration")}
+                >
                   Don't have an account? Register
                 </Text>
               </View>
@@ -157,13 +181,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
     letterSpacing: 0.01,
     color: "#212121",
-    marginTop: 92,
     marginBottom: 32,
   },
   form: {
     flex: 1,
     alignItems: "center",
     marginHorizontal: 16,
+    justifyContent: "flex-end",
   },
   formLogin: {
     height: 50,

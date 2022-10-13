@@ -19,7 +19,7 @@ const initialState = {
   password: "",
 };
 
-export default function RegistrationScreen() {
+export default function RegistrationScreen({ navigation }) {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [state, setstate] = useState(initialState);
   const [dimensions, setdimensions] = useState(Dimensions.get("window").width);
@@ -35,9 +35,13 @@ export default function RegistrationScreen() {
   };
 
   const sentInitialState = () => {
+    if (!initialState.email && !initialState.password && !initialState.login) {
+      return;
+    }
     setIsShowKeyboard(false);
     Keyboard.dismiss();
     setstate(initialState);
+    navigation.navigate("Home");
     setShow(true);
   };
 
@@ -60,12 +64,22 @@ export default function RegistrationScreen() {
     return setShow(true);
   };
 
+  useEffect(() => {
+    const hideKeybord = Keyboard.addListener("keyboardDidHide", () => {
+      setIsShowKeyboard(false);
+    });
+
+    return () => {
+      hideKeybord.remove();
+    };
+  }, []);
+
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
       <View style={styles.container}>
         <ImageBackground
           style={styles.background}
-          source={require("../img/background.jpg")}
+          source={require("../../img/background.jpg")}
         >
           <KeyboardAvoidingView
             style={styles.container}
@@ -87,7 +101,10 @@ export default function RegistrationScreen() {
                 <Text style={styles.headerTitle}>Registration</Text>
                 <TextInput
                   style={currentLoginStyle}
-                  onFocus={() => setFocusLogin(true)}
+                  onFocus={() => {
+                    setFocusLogin(true);
+                    setIsShowKeyboard(true);
+                  }}
                   onBlur={() => setFocusLogin(false)}
                   placeholder="Login"
                   placeholderTextColor="#BDBDBD"
@@ -101,7 +118,10 @@ export default function RegistrationScreen() {
                 />
                 <TextInput
                   style={currentEmailStyle}
-                  onFocus={() => setFocusEmail(true)}
+                  onFocus={() => {
+                    setFocusEmail(true);
+                    setIsShowKeyboard(true);
+                  }}
                   onBlur={() => setFocusEmail(false)}
                   placeholder="Email"
                   placeholderTextColor="#BDBDBD"
@@ -117,7 +137,10 @@ export default function RegistrationScreen() {
                 <View>
                   <TextInput
                     style={currentPasswordStyle}
-                    onFocus={() => setFocusPassword(true)}
+                    onFocus={() => {
+                      setFocusPassword(true);
+                      setIsShowKeyboard(true);
+                    }}
                     onBlur={() => setFocusPassword(false)}
                     placeholder="Password"
                     placeholderTextColor="#BDBDBD"
@@ -142,7 +165,10 @@ export default function RegistrationScreen() {
                   <Text style={styles.buttonText}>Register</Text>
                 </TouchableOpacity>
 
-                <Text style={styles.textLink}>
+                <Text
+                  style={styles.textLink}
+                  onPress={() => navigation.navigate("Login")}
+                >
                   Already have an account? Sign in
                 </Text>
               </View>
@@ -195,6 +221,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     marginHorizontal: 16,
+    justifyContent: "flex-end",
   },
   formLogin: {
     height: 50,
