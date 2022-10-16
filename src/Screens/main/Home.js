@@ -63,6 +63,7 @@ const Home = ({ navigation }) => {
           name="Create Post"
           component={CreatePostsScreen}
           options={{
+            tabBarStyle: { display: "none" },
             headerShown: true,
             tabBarIcon: ({ focused }) => (
               <View
@@ -80,6 +81,7 @@ const Home = ({ navigation }) => {
                 size={24}
                 color="#BDBDBD"
                 style={{ marginLeft: 20 }}
+                onPress={() => navigation.navigate("Posts")}
               />
             ),
           }}
@@ -102,6 +104,7 @@ const Home = ({ navigation }) => {
                 size={24}
                 color="#BDBDBD"
                 style={{ marginLeft: 20 }}
+                onPress={() => navigation.navigate("Posts")}
               />
             ),
           }}
