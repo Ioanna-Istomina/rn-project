@@ -1,8 +1,10 @@
 import PostsScreen from "./PostsScreen";
 import ProfileScreen from "./ProfileScreen";
 import CreatePostsScreen from "./CreatePostsScreen";
+import MapScreen from "./MapScreen";
+import CommentsScreen from "./CommentsScreen";
 
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
@@ -109,6 +111,56 @@ const Home = ({ navigation }) => {
             ),
           }}
         />
+        <MainTab.Screen
+          name="MapScreen"
+          component={MapScreen}
+          options={{
+            title: "Map Screen",
+            headerTitleAlign: "center",
+            tabBarStyle: { display: "none" },
+            tabBarButton: () => null,
+            headerLeft: () => {
+              return (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.arrow}
+                  onPress={() => navigation.navigate("Posts")}
+                >
+                  <AntDesign
+                    name="arrowleft"
+                    size={24}
+                    color="rgba(33, 33, 33, 0.8)"
+                  />
+                </TouchableOpacity>
+              );
+            },
+          }}
+        />
+        <MainTab.Screen
+          name="CommentsScreen"
+          component={CommentsScreen}
+          options={{
+            headerTitleAlign: "center",
+            title: "Comments",
+            tabBarStyle: { display: "none" },
+            tabBarButton: () => null,
+            headerLeft: () => {
+              return (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.arrow}
+                  onPress={() => navigation.navigate("Posts")}
+                >
+                  <AntDesign
+                    name="arrowleft"
+                    size={24}
+                    color="rgba(33, 33, 33, 0.8)"
+                  />
+                </TouchableOpacity>
+              );
+            },
+          }}
+        />
       </MainTab.Navigator>
     </TouchableWithoutFeedback>
   );
@@ -123,5 +175,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
+  },
+  arrow: {
+    marginLeft: 16,
+    width: 24,
+    height: 24,
   },
 });

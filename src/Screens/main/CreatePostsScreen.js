@@ -15,6 +15,7 @@ import {
 import { FontAwesome, SimpleLineIcons, AntDesign } from "@expo/vector-icons";
 
 import { Camera } from "expo-camera";
+import * as Location from "expo-location";
 
 const CreatePostsScreen = ({ navigation }) => {
   const [camera, setCamera] = useState(null);
@@ -23,6 +24,7 @@ const CreatePostsScreen = ({ navigation }) => {
   const [_, setHasCameraPermission] = useState(null);
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
+  const [photoLocation, setPhotoLocation] = useState(null);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
   const photoRepeater = () => {
@@ -41,8 +43,25 @@ const CreatePostsScreen = ({ navigation }) => {
     setIsCameraReady(true);
   };
 
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
+      }
+    })();
+  }, []);
+
   const takePhoto = async () => {
     const photo = await camera.takePictureAsync();
+    const location = await Location.getCurrentPositionAsync();
+
+    const coords = {
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    };
+    setPhotoLocation(coords);
     setPhoto(photo.uri);
   };
 
@@ -70,6 +89,7 @@ const CreatePostsScreen = ({ navigation }) => {
       photo,
       name: name.trim(),
       location: location.trim(),
+      photoLocation,
     });
     reset();
   };
@@ -78,87 +98,94 @@ const CreatePostsScreen = ({ navigation }) => {
       <View
         style={{
           ...styles.container,
-          marginBottom: isShowKeyboard ? 300 : 25,
         }}
       >
-        <Camera
-          style={styles.camera}
-          ref={setCamera}
-          onCameraReady={onCameraReady}
-        >
-          {photo ? (
-            <View style={styles.photoContainer}>
-              <Image
-                source={{ uri: photo }}
-                style={{ height: 240, width: 343 }}
-              />
-              <View
-                style={{
-                  ...styles.cameraIconStyle,
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  marginTop: -30,
-                  marginStart: -30,
-                  backgroundColor: "rgba(255, 255, 255, 0.3)",
-                }}
-              >
-                <FontAwesome
-                  name="camera"
-                  size={24}
-                  style={{ color: "#BDBDBD" }}
-                />
-              </View>
-            </View>
-          ) : (
-            <TouchableOpacity
-              onPress={takePhoto}
-              style={styles.cameraIconStyle}
-            >
-              <FontAwesome
-                name="camera"
-                size={24}
-                style={{ color: "#BDBDBD" }}
-              />
-            </TouchableOpacity>
-          )}
-        </Camera>
-        {photo ? (
-          <Text style={styles.text} onPress={photoRepeater}>
-            Edit photo
-          </Text>
-        ) : (
-          <Text style={styles.text}>Upload a photo</Text>
-        )}
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          <View style={styles.inputForm}>
-            <TextInput
-              style={styles.inputName}
-              placeholder="Title..."
-              value={name}
-              name="name"
-              onChangeText={inputName}
-              onFocus={() => setIsShowKeyboard(true)}
-              onBlur={() => setIsShowKeyboard(false)}
-            />
-            <View style={styles.containerInput}>
-              <SimpleLineIcons
-                name="location-pin"
-                size={24}
-                color="#BDBDBD"
-                style={styles.iconLocation}
-              />
+          <View
+            style={{
+              marginBottom: !isShowKeyboard ? 20 : 80,
+              justifyContent: "center",
+              marginHorizontal: 16,
+            }}
+          >
+            <Camera
+              style={styles.camera}
+              ref={setCamera}
+              onCameraReady={onCameraReady}
+            >
+              {photo ? (
+                <View style={styles.photoContainer}>
+                  <Image
+                    source={{ uri: photo }}
+                    style={{ height: 240, width: 343 }}
+                  />
+                  <View
+                    style={{
+                      ...styles.cameraIconStyle,
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      marginTop: -30,
+                      marginStart: -30,
+                      backgroundColor: "rgba(255, 255, 255, 0.3)",
+                    }}
+                  >
+                    <FontAwesome
+                      name="camera"
+                      size={24}
+                      style={{ color: "#BDBDBD" }}
+                    />
+                  </View>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  onPress={takePhoto}
+                  style={styles.cameraIconStyle}
+                >
+                  <FontAwesome
+                    name="camera"
+                    size={24}
+                    style={{ color: "#BDBDBD" }}
+                  />
+                </TouchableOpacity>
+              )}
+            </Camera>
+            {photo ? (
+              <Text style={styles.text} onPress={photoRepeater}>
+                Edit photo
+              </Text>
+            ) : (
+              <Text style={styles.text}>Upload a photo</Text>
+            )}
+            <View>
               <TextInput
-                style={styles.inputLocation}
-                placeholder="Location..."
-                value={location}
-                name="location"
-                onChangeText={inputLocation}
+                style={styles.inputName}
+                placeholder="Title..."
+                value={name}
+                name="name"
+                onChangeText={inputName}
                 onFocus={() => setIsShowKeyboard(true)}
                 onBlur={() => setIsShowKeyboard(false)}
               />
+              <View style={styles.containerInput}>
+                <SimpleLineIcons
+                  name="location-pin"
+                  size={24}
+                  color="#BDBDBD"
+                  style={styles.iconLocation}
+                />
+                <TextInput
+                  style={styles.inputLocation}
+                  placeholder="Location..."
+                  value={location}
+                  name="location"
+                  onChangeText={inputLocation}
+                  onFocus={() => setIsShowKeyboard(true)}
+                  onBlur={() => setIsShowKeyboard(false)}
+                />
+              </View>
             </View>
             {photo && location && name ? (
               <TouchableOpacity
@@ -195,12 +222,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    justifyContent: "flex-end",
   },
   camera: {
     height: 240,
     width: 343,
     marginTop: Platform.OS === "ios" ? 16 : 32,
-    marginHorizontal: 16,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#F6F6F6",
@@ -260,9 +287,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: 29,
-  },
-  inputForm: {
-    marginHorizontal: 16,
   },
   footer: {
     height: 83,

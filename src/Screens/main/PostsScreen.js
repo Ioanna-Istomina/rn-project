@@ -12,7 +12,7 @@ import { EvilIcons, SimpleLineIcons } from "@expo/vector-icons";
 
 import userPhoto from "../../img/user.jpg";
 
-const PostsScreen = ({ route }) => {
+const PostsScreen = ({ route, navigation }) => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
@@ -40,11 +40,25 @@ const PostsScreen = ({ route }) => {
             <Image source={{ uri: item.photo }} style={styles.image} />
             <Text style={styles.imgTitle}>{item.name}</Text>
             <View style={styles.commentContainer}>
-              <TouchableOpacity style={styles.comment}>
+              <TouchableOpacity
+                style={styles.comment}
+                onPress={() => {
+                  navigation.navigate("CommentsScreen", {
+                    img: item.newPhoto,
+                  });
+                }}
+              >
                 <EvilIcons name="comment" size={24} color="#BDBDBD" />
                 <Text style={styles.commentNumber}>0</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.location}>
+              <TouchableOpacity
+                style={styles.location}
+                onPress={() => {
+                  navigation.navigate("MapScreen", {
+                    location: item.photoLocation,
+                  });
+                }}
+              >
                 <SimpleLineIcons
                   name="location-pin"
                   size={24}
