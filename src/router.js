@@ -6,7 +6,28 @@ import LoginScreen from "./Screens/auth/LoginScreen";
 const AuthStack = createNativeStackNavigator();
 
 export const useRoute = (isAuth) => {
-  if (!isAuth) {
+  return isAuth ? (
+    <AuthStack.Screen
+      name="Home"
+      component={Home}
+      options={{ headerShown: false }}
+    />
+  ) : (
+    <>
+      <AuthStack.Screen
+        options={{ headerShown: false }}
+        name="Login"
+        component={LoginScreen}
+      />
+      <AuthStack.Screen
+        name="Registration"
+        options={{ headerShown: false }}
+        component={RegistrationScreen}
+      />
+    </>
+  );
+  {
+    /* if (!isAuth) {
     return (
       <>
         <AuthStack.Screen
@@ -28,5 +49,6 @@ export const useRoute = (isAuth) => {
       component={Home}
       options={{ headerShown: false }}
     />
-  );
+  ); */
+  }
 };

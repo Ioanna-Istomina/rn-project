@@ -16,10 +16,13 @@ import {
 } from "@expo/vector-icons";
 
 import { TouchableWithoutFeedback } from "react-native";
+import { useDispatch } from "react-redux";
+import { authSignOutUser } from "../../redux/auth/authOperations";
 
 const MainTab = createBottomTabNavigator();
 
 const Home = ({ navigation }) => {
+  const dispatch = useDispatch();
   return (
     <TouchableWithoutFeedback onPress={() => setactiveIcon(false)}>
       <MainTab.Navigator
@@ -56,7 +59,7 @@ const Home = ({ navigation }) => {
                 size={24}
                 color="#BDBDBD"
                 style={{ marginRight: 20 }}
-                onPress={() => navigation.navigate("Login")}
+                onPress={() => dispatch(authSignOutUser())}
               />
             ),
           }}

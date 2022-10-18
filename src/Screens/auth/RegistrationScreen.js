@@ -13,6 +13,10 @@ import {
   Dimensions,
 } from "react-native";
 
+import { authSignUpUser } from "../../redux/auth/authOperations";
+import { useDispatch } from "react-redux";
+import { authSlice } from "../../redux/auth/authReducer";
+
 const initialState = {
   login: "",
   email: "",
@@ -28,20 +32,26 @@ export default function RegistrationScreen({ navigation }) {
   const [focusEmail, setFocusEmail] = useState(false);
   const [focusPassword, setFocusPassword] = useState(false);
 
+  const dispatch = useDispatch();
+
   const keyboardHide = () => {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
     setShow(true);
   };
 
-  const sentInitialState = () => {
-    if (!initialState.email && !initialState.password && !initialState.login) {
+  const sentInitialState = ({ navigation }) => {
+    if (!state.email && !state.password && !state.login) {
       return;
     }
     setIsShowKeyboard(false);
     Keyboard.dismiss();
     setstate(initialState);
-    navigation.navigate("Home");
+    const user = authSignUpUser(state);
+    dispatch(
+      authSlice.actions.updateProfile({ userId: user.uid, login, email })
+    );
+    navigation.navigate("Posts");
     setShow(true);
   };
 
