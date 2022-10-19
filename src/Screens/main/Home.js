@@ -1,8 +1,10 @@
 import PostsScreen from "./PostsScreen";
 import ProfileScreen from "./ProfileScreen";
 import CreatePostsScreen from "./CreatePostsScreen";
+import MapScreen from "./MapScreen";
+import CommentsScreen from "./CommentsScreen";
 
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
@@ -14,10 +16,13 @@ import {
 } from "@expo/vector-icons";
 
 import { TouchableWithoutFeedback } from "react-native";
+import { useDispatch } from "react-redux";
+import { authSignOutUser } from "../../redux/auth/authOperations";
 
 const MainTab = createBottomTabNavigator();
 
 const Home = ({ navigation }) => {
+  const dispatch = useDispatch();
   return (
     <TouchableWithoutFeedback onPress={() => setactiveIcon(false)}>
       <MainTab.Navigator
@@ -54,7 +59,7 @@ const Home = ({ navigation }) => {
                 size={24}
                 color="#BDBDBD"
                 style={{ marginRight: 20 }}
-                onPress={() => navigation.navigate("Login")}
+                onPress={() => dispatch(authSignOutUser())}
               />
             ),
           }}
@@ -63,6 +68,7 @@ const Home = ({ navigation }) => {
           name="Create Post"
           component={CreatePostsScreen}
           options={{
+            tabBarStyle: { display: "none" },
             headerShown: true,
             tabBarIcon: ({ focused }) => (
               <View
@@ -80,6 +86,7 @@ const Home = ({ navigation }) => {
                 size={24}
                 color="#BDBDBD"
                 style={{ marginLeft: 20 }}
+                onPress={() => navigation.navigate("Posts")}
               />
             ),
           }}
@@ -88,7 +95,7 @@ const Home = ({ navigation }) => {
           name="Profile"
           component={ProfileScreen}
           options={{
-            headerShown: true,
+            headerShown: false,
             tabBarIcon: ({ focused }) => (
               <Feather
                 name="user"
@@ -102,8 +109,59 @@ const Home = ({ navigation }) => {
                 size={24}
                 color="#BDBDBD"
                 style={{ marginLeft: 20 }}
+                onPress={() => navigation.navigate("Posts")}
               />
             ),
+          }}
+        />
+        <MainTab.Screen
+          name="MapScreen"
+          component={MapScreen}
+          options={{
+            title: "Map Screen",
+            headerTitleAlign: "center",
+            tabBarStyle: { display: "none" },
+            tabBarButton: () => null,
+            headerLeft: () => {
+              return (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.arrow}
+                  onPress={() => navigation.navigate("Posts")}
+                >
+                  <AntDesign
+                    name="arrowleft"
+                    size={24}
+                    color="rgba(33, 33, 33, 0.8)"
+                  />
+                </TouchableOpacity>
+              );
+            },
+          }}
+        />
+        <MainTab.Screen
+          name="CommentsScreen"
+          component={CommentsScreen}
+          options={{
+            headerTitleAlign: "center",
+            title: "Comments",
+            tabBarStyle: { display: "none" },
+            tabBarButton: () => null,
+            headerLeft: () => {
+              return (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.arrow}
+                  onPress={() => navigation.navigate("Posts")}
+                >
+                  <AntDesign
+                    name="arrowleft"
+                    size={24}
+                    color="rgba(33, 33, 33, 0.8)"
+                  />
+                </TouchableOpacity>
+              );
+            },
           }}
         />
       </MainTab.Navigator>
@@ -120,5 +178,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
+  },
+  arrow: {
+    marginLeft: 16,
+    width: 24,
+    height: 24,
   },
 });

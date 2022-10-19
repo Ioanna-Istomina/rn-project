@@ -13,6 +13,9 @@ import {
   Dimensions,
 } from "react-native";
 
+import { authSignInUser } from "../../redux/auth/authOperations";
+import { useDispatch } from "react-redux";
+
 const initialState = {
   email: "",
   password: "",
@@ -26,21 +29,22 @@ export default function LoginScreen({ navigation }) {
   const [focusEmail, setFocusEmail] = useState(false);
   const [focusPassword, setFocusPassword] = useState(false);
 
+  const dispatch = useDispatch();
+
   const keyboardHide = () => {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
     setShow(true);
   };
 
-  const sentInitialState = () => {
-    if (!initialState.email && !initialState.password) {
+  const sentInitialState = ({ navigation }) => {
+    if (!state.email && !state.password) {
       return;
     }
-
     setIsShowKeyboard(false);
     Keyboard.dismiss();
     setstate(initialState);
-    navigation.navigate("Home");
+    dispatch(authSignInUser(state));
     setShow(true);
   };
 

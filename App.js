@@ -1,41 +1,37 @@
-import { useFonts } from "expo-font";
-import * as SplashScreen from "expo-splash-screen";
-import { useCallback } from "react";
-import { View, StyleSheet } from "react-native";
+import * as Font from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useRoute } from "./src/router";
-
-SplashScreen.preventAutoHideAsync();
-const AuthStack = createNativeStackNavigator();
+import { Provider } from "react-redux";
+import { store } from "./src/redux/store";
+import { useState, useEffect } from "react";
+import Navigation from "./src/Screens/auth/Navigation";
 
 export default function App() {
-  const [fontsLoaded] = useFonts({
-    "Roboto-Medium": require("./assets/font/Roboto-Medium.ttf"),
-    "Roboto-Regular": require("./assets/font/Roboto-Regular.ttf"),
-  });
-
-  const routing = useRoute({});
-
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
+  const [isReady, setIsReady] = useState(false);
+  useEffect(() => {
+    async function prepare() {
+      try {
+        await Font.loadAsync({
+          "Roboto-Medium": require("./assets/font/Roboto-Medium.ttf"),
+          "Roboto-Regular": require("./assets/font/Roboto-Regular.ttf"),
+        });
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setIsReady(true);
+      }
     }
-  }, [fontsLoaded]);
+    prepare();
+  }, []);
 
-  if (!fontsLoaded) {
-    return null;
-  }
   return (
-    <NavigationContainer>
-      <View style={styles.container} onLayout={onLayoutRootView}>
-        <AuthStack.Navigator>{routing}</AuthStack.Navigator>
-      </View>
-    </NavigationContainer>
+    <>
+      {isReady && (
+        <Provider store={store}>
+          <NavigationContainer>
+            <Navigation />
+          </NavigationContainer>
+        </Provider>
+      )}
+    </>
   );
 }
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
