@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import {
   View,
   Text,
@@ -8,54 +9,77 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-import { EvilIcons, SimpleLineIcons } from "@expo/vector-icons";
+import { collection, getDocs } from "firebase/firestore";
+
+import { db } from "../../firebase/config";
+
+import { SimpleLineIcons, FontAwesome } from "@expo/vector-icons";
 
 import userPhoto from "../../img/user.jpg";
 
-const PostsScreen = ({ route, navigation }) => {
+const PostsScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
 
+  const { email, login } = useSelector((state) => state.auth);
+
+  const getAllPosts = async () => {
+    const photoRequest = await getDocs(collection(db, "posts"));
+    let newPosts = [];
+    photoRequest.forEach((doc) => {
+      newPosts.push({ ...doc.data(), id: doc.id });
+    });
+    setPosts(newPosts);
+  };
+
   useEffect(() => {
-    if (route.params) {
-      setPosts((prevState) => [...prevState, route.params]);
-    }
-  }, [route.params]);
+    getAllPosts();
+  }, [posts]);
 
   return (
     <View style={styles.container}>
       <View style={styles.userContainer}>
         <Image style={styles.userPhoto} source={userPhoto} />
         <View style={styles.userData}>
-          <Text style={styles.name}>Ioanna Istomina</Text>
-          <Text style={styles.email}>email@example.com</Text>
+          <Text style={styles.name}>{login}</Text>
+          <Text style={styles.email}>{email}</Text>
         </View>
       </View>
       <FlatList
         data={posts}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
-          <View
-            style={{ ...styles.containerImg, width: 343, marginBottom: 32 }}
-          >
-            <Image source={{ uri: item.photo }} style={styles.image} />
+          <View style={{ width: 343, marginBottom: 32 }}>
+            <Image source={{ uri: item.photoURL }} style={styles.image} />
             <Text style={styles.imgTitle}>{item.name}</Text>
             <View style={styles.commentContainer}>
               <TouchableOpacity
                 style={styles.comment}
                 onPress={() => {
                   navigation.navigate("CommentsScreen", {
-                    img: item.newPhoto,
+                    photo: item.photoURL,
+                    id: item.id,
                   });
                 }}
               >
-                <EvilIcons name="comment" size={24} color="#BDBDBD" />
-                <Text style={styles.commentNumber}>0</Text>
+                {item.comments === 0 ? (
+                  <FontAwesome name="comment-o" size={24} color="#BDBDBD" />
+                ) : (
+                  <FontAwesome name="comment" size={24} color="#FF6C00" />
+                )}
+                <Text
+                  style={{
+                    ...styles.commentNumber,
+                    color: item.comments === 0 ? "#BDBDBD" : "black",
+                  }}
+                >
+                  {item.comments}
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.location}
                 onPress={() => {
                   navigation.navigate("MapScreen", {
-                    location: item.photoLocation,
+                    location: item.locationStorage.coords,
                   });
                 }}
               >
@@ -107,7 +131,7 @@ const styles = StyleSheet.create({
     color: "rgba(33, 33, 33, 0.8)",
   },
   image: {
-    height: 343,
+    height: 240,
     width: "100%",
     borderRadius: 8,
   },

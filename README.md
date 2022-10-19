@@ -1,6 +1,6 @@
 # rn-project
 
-![img](createPostsScreen.png)
+![img](profileScreen.png)
+![img](commentScreen.png)
 ![img](postsScreen.png)
-![img](mapScreen.png)
-![img](commentsScreen.png)
+![img](code.png)

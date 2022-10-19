@@ -12,10 +12,14 @@ import {
   Platform,
   TouchableHighlight,
 } from "react-native";
+import { useSelector } from "react-redux";
 import { FontAwesome, SimpleLineIcons, AntDesign } from "@expo/vector-icons";
 
 import { Camera } from "expo-camera";
 import * as Location from "expo-location";
+import { storage, db } from "../../firebase/config";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { collection, addDoc } from "firebase/firestore";
 
 const CreatePostsScreen = ({ navigation }) => {
   const [camera, setCamera] = useState(null);
@@ -27,6 +31,7 @@ const CreatePostsScreen = ({ navigation }) => {
   const [photoLocation, setPhotoLocation] = useState(null);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
+  const { userId, login } = useSelector((state) => state.auth);
   const photoRepeater = () => {
     setPhoto(null);
   };
@@ -42,16 +47,6 @@ const CreatePostsScreen = ({ navigation }) => {
   const onCameraReady = () => {
     setIsCameraReady(true);
   };
-
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
-        return;
-      }
-    })();
-  }, []);
 
   const takePhoto = async () => {
     const photo = await camera.takePictureAsync();
@@ -79,27 +74,67 @@ const CreatePostsScreen = ({ navigation }) => {
     setPhoto(null);
   };
 
-  const sendPhoto = () => {
-    Keyboard.dismiss();
-    if (!name && !location && !photo) {
-      return;
+  const handleClick = async () => {
+    try {
+      Keyboard.dismiss();
+      if (!name && !location && !photo) {
+        return;
+      }
+      setIsShowKeyboard(false);
+      await createPost();
+      navigation.navigate("Posts", {
+        photo,
+        name: name.trim(),
+        location: location.trim(),
+        photoLocation,
+      });
+      reset();
+    } catch (error) {
+      console.log(error);
     }
-    setIsShowKeyboard(false);
-    navigation.navigate("Posts", {
-      photo,
-      name: name.trim(),
-      location: location.trim(),
-      photoLocation,
-    });
-    reset();
   };
+
+  const uploadPhotoToServer = async () => {
+    try {
+      const response = await fetch(photo);
+      const file = await response.blob();
+      const postId = Date.now().toString();
+      const storageRef = await ref(storage, `posts/${postId}`);
+      await uploadBytes(storageRef, file);
+      const photoURL = await getDownloadURL(storageRef);
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.log("Permission to access location was denied");
+        return;
+      }
+      const locationStorage = await Location.getCurrentPositionAsync({});
+      return { photoURL, locationStorage };
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const createPost = async () => {
+    try {
+      const { photoURL, locationStorage } = await uploadPhotoToServer();
+      await addDoc(collection(db, "posts"), {
+        photoURL,
+        locationStorage,
+        name,
+        location,
+        userId,
+        login,
+        comments: 0,
+        likes: [],
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View
-        style={{
-          ...styles.container,
-        }}
-      >
+      <View style={styles.container}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
@@ -193,7 +228,7 @@ const CreatePostsScreen = ({ navigation }) => {
                   ...styles.buttonContainer,
                   backgroundColor: "#FF6C00",
                 }}
-                onPress={sendPhoto}
+                onPress={handleClick}
               >
                 <Text style={{ ...styles.textButton, color: "#fff" }}>
                   Publish

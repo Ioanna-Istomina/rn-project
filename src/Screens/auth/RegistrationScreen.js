@@ -40,7 +40,7 @@ export default function RegistrationScreen({ navigation }) {
     setShow(true);
   };
 
-  const sentInitialState = ({ navigation }) => {
+  const sentInitialState = () => {
     if (!state.email && !state.password && !state.login) {
       return;
     }
@@ -51,7 +51,6 @@ export default function RegistrationScreen({ navigation }) {
     dispatch(
       authSlice.actions.updateProfile({ userId: user.uid, login, email })
     );
-    navigation.navigate("Posts");
     setShow(true);
   };
 

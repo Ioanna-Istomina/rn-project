@@ -95,7 +95,7 @@ const Home = ({ navigation }) => {
           name="Profile"
           component={ProfileScreen}
           options={{
-            headerShown: true,
+            headerShown: false,
             tabBarIcon: ({ focused }) => (
               <Feather
                 name="user"

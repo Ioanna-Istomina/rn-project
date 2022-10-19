@@ -45,7 +45,6 @@ export default function LoginScreen({ navigation }) {
     Keyboard.dismiss();
     setstate(initialState);
     dispatch(authSignInUser(state));
-    navigation.navigate("Posts");
     setShow(true);
   };
 
