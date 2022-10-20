@@ -47,10 +47,8 @@ export default function RegistrationScreen({ navigation }) {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
     setstate(initialState);
-    const user = authSignUpUser(state);
-    dispatch(
-      authSlice.actions.updateProfile({ userId: user.uid, login, email })
-    );
+    // const user = authSignUpUser(state);
+    dispatch(authSignUpUser(state));
     setShow(true);
   };
 

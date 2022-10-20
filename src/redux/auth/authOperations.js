@@ -8,18 +8,25 @@ import {
 import { auth } from "../../firebase/config";
 import { authSlice } from "./authReducer";
 
-export const authSignUpUser = async ({ email, password, login }) => {
-  try {
-    await createUserWithEmailAndPassword(auth, email, password, login);
-    await updateProfile(auth.currentUser, {
-      displayName: login,
-    });
-    const updatedUser = auth.currentUser;
-    return updatedUser;
-  } catch (error) {
-    alert(error.message);
-  }
-};
+export const authSignUpUser =
+  ({ email, password, login }) =>
+  async (dispatch, getSatte) => {
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(auth.currentUser, {
+        displayName: login,
+      });
+      const user = auth.currentUser;
+      const userUpdate = {
+        email: user.email,
+        userId: user.uid,
+        login: user.displayName,
+      };
+      dispatch(authSlice.actions.updateProfile(userUpdate));
+    } catch (error) {
+      alert(error.message);
+    }
+  };
 
 export const authSignInUser =
   ({ email, password }) =>
