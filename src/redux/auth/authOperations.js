@@ -17,7 +17,7 @@ export const authSignUpUser = async ({ email, password, login }) => {
     const updatedUser = auth.currentUser;
     return updatedUser;
   } catch (error) {
-    console.log(error.message);
+    alert(error.message);
   }
 };
 
@@ -27,7 +27,7 @@ export const authSignInUser =
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
-      console.log(error.message);
+      alert(error.message);
     }
   };
 
@@ -47,7 +47,7 @@ export const authStateChangeUser = () => async (dispatch, getState) => {
       }
     });
   } catch (error) {
-    console.log(error.message);
+    alert(error.message);
   }
 };
 
@@ -56,6 +56,6 @@ export const authSignOutUser = () => async (dispatch, getState) => {
     await signOut(auth);
     dispatch(authSlice.actions.authLogOut());
   } catch (error) {
-    console.log(error.message);
+    alert(error.message);
   }
 };

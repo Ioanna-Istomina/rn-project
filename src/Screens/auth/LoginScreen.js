@@ -37,7 +37,7 @@ export default function LoginScreen({ navigation }) {
     setShow(true);
   };
 
-  const sentInitialState = ({ navigation }) => {
+  const sentInitialState = () => {
     if (!state.email && !state.password) {
       return;
     }
